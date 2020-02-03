@@ -19,25 +19,29 @@ const gulpPlumber = require('gulp-plumber');
 const htmlmin = require('gulp-htmlmin');
 const notify = require('gulp-notify');
 const htmlValidator = require('gulp-w3c-html-validator');
-const makeDir = require('make-dir');
-const write = require('write');
+const nodePath = require('path');
+const fs = require('fs').promises;
 
 task('init', cb => {
-  Promise.all([
-    makeDir('./src/js'),
-    makeDir('./src/images'),
-    makeDir('./src/fonts'),
-    makeDir('./src/scss'),
-    makeDir('./src/static')
-  ])
-    .then(paths => {
-      console.log(
-        `⚡️ Folder structure has been generated! To start development, run a command [ npm run dev ]`
-      );
-      write.sync('./src/index.html', '', { overwrite: true });
-      cb();
-    })
-    .catch(err => console.log('Error: ', err));
+  rimraf(nodePath.join(__dirname, 'src'), () => {
+    Promise.all([
+      fs.mkdir(nodePath.join(__dirname, 'src')),
+      fs.mkdir(nodePath.join(__dirname, 'src', 'js')),
+      fs.mkdir(nodePath.join(__dirname, 'src', 'images')),
+      fs.mkdir(nodePath.join(__dirname, 'src', 'fonts')),
+      fs.mkdir(nodePath.join(__dirname, 'src', 'scss')),
+      fs.writeFile(nodePath.join(__dirname, 'src', 'index.html'))
+    ])
+      .then(res => {
+        console.log('⚡️  Folder structure has been generated!');
+        console.log(
+          'To start development, run a command',
+          '\x1b[36mnpm run dev\x1b[0m'
+        );
+        cb();
+      })
+      .catch(err => console.log('Error: ', err));
+  });
 });
 
 const empty = () => {
