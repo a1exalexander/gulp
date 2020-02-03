@@ -12,8 +12,8 @@ const rimraf = require('rimraf');
 const browserSync = require('browser-sync');
 const rollup = require('gulp-better-rollup');
 const babel = require('rollup-plugin-babel');
-const resolve = require('rollup-plugin-node-resolve');
-const commonjs = require('rollup-plugin-commonjs');
+const resolve = require('@rollup/plugin-node-resolve');
+const commonjs = require('@rollup/plugin-commonjs');
 const { terser } = require('rollup-plugin-terser');
 const gulpPlumber = require('gulp-plumber');
 const htmlmin = require('gulp-htmlmin');
@@ -30,7 +30,7 @@ task('init', cb => {
       fs.mkdir(nodePath.join(__dirname, 'src', 'images')),
       fs.mkdir(nodePath.join(__dirname, 'src', 'fonts')),
       fs.mkdir(nodePath.join(__dirname, 'src', 'scss')),
-      fs.writeFile(nodePath.join(__dirname, 'src', 'index.html'))
+      fs.writeFile(nodePath.join(__dirname, 'src', 'index.html'), '')
     ])
       .then(res => {
         console.log('⚡️  Folder structure has been generated!');
