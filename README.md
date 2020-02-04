@@ -27,3 +27,12 @@ npm start
 # Build for production
 npm run build
 ```
+
+### Project structure
+    .
+    ├── src                    # Source files
+      ├── fonts
+      ├── images
+      ├── js                   # Entry JS files
+      ├── scss
+      index.html
