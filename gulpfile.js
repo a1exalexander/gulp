@@ -21,18 +21,25 @@ const htmlmin = require('gulp-htmlmin');
 const notify = require('gulp-notify');
 const htmlValidator = require('gulp-w3c-html-validator');
 
-const empty = () => {
+const emptyPipe = () => {
   var through = require('through2');
   return through.obj(function(file, enc, cb) {
     cb(null, file);
   });
 };
 
-const onEmpty = (type = 'dev', fn, params) => {
-  if (type === 'prod' || type === 'validator') {
+const prodPipe = (type, fn, params) => {
+  if (type === 'prod') {
     return params ? fn(params) : fn();
   }
-  return empty();
+  return emptyPipe()
+};
+
+const devPipe = (type, fn, params) => {
+  if (['dev', 'validator'].includes(type)) {
+    return params ? fn(params) : fn();
+  }
+  return emptyPipe()
 };
 
 const reload = browserSync.reload;
@@ -87,19 +94,19 @@ task('clean', cb => {
   rimraf(path.clean, cb);
 });
 
-const htmlTask = (type = 'dev') => () => {
+const htmlTask = (type) => () => {
   return src(path.src.HTML)
     .pipe(plumber())
     .pipe(rigger())
-    .pipe(onEmpty(type, htmlValidator))
-    .pipe(onEmpty(type, htmlValidator.reporter))
-    .pipe(onEmpty(type, htmlmin, { collapseWhitespace: true }))
+    .pipe(devPipe(type, htmlValidator))
+    .pipe(devPipe(type, htmlValidator.reporter))
+    .pipe(prodPipe(type, htmlmin, { collapseWhitespace: true }))
     .pipe(dest(path.build.HTML))
     .pipe(reload({ stream: true }));
 };
 
-task('html:dev', htmlTask('dev'));
-task('html:validator', htmlTask('validator'));
+task('html:dev', htmlTask());
+task('html:validator', htmlTask('dev'));
 task('html:prod', htmlTask('prod'));
 
 const jsTask = (type = 'dev') => () => {
@@ -132,7 +139,7 @@ const styleTask = (type = 'dev') => () => {
         errLogToConsole: true
       })
     )
-    .pipe(onEmpty(type, postcss, plugins))
+    .pipe(prodPipe(type, postcss, plugins))
     .pipe(sourcemaps.write())
     .pipe(dest(path.build.STYLE))
     .pipe(reload({ stream: true }));
@@ -145,7 +152,7 @@ const imagesTask = (type = 'dev') => () => {
   return src(path.src.IMAGES)
     .pipe(plumber())
     .pipe(
-      onEmpty(type, imagemin, {
+      prodPipe(type, imagemin, {
         progressive: true,
         svgoPlugins: [{ removeViewBox: false }],
         use: [pngquant()],
