@@ -60,7 +60,7 @@ const path = {
     FONTS: 'build/fonts/'
   },
   src: {
-    HTML: 'src/*.html',
+    HTML: 'src/*!(_).html',
     JS: 'src/js/*.js',
     STYLE: 'src/styles/*!(_).*',
     IMAGES: 'src/images/**/*.*',
