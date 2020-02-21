@@ -30,7 +30,7 @@ task('init', cb => {
       fs.mkdir(nodePath.join(__dirname, 'src', 'js')),
       fs.mkdir(nodePath.join(__dirname, 'src', 'images')),
       fs.mkdir(nodePath.join(__dirname, 'src', 'fonts')),
-      fs.mkdir(nodePath.join(__dirname, 'src', 'scss')),
+      fs.mkdir(nodePath.join(__dirname, 'src', 'styles')),
       fs.writeFile(
         nodePath.join(__dirname, 'src', 'index.html'),
 `<!DOCTYPE html>
