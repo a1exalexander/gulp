@@ -20,43 +20,6 @@ const gulpPlumber = require('gulp-plumber');
 const htmlmin = require('gulp-htmlmin');
 const notify = require('gulp-notify');
 const htmlValidator = require('gulp-w3c-html-validator');
-const nodePath = require('path');
-const fs = require('fs').promises;
-
-task('init', cb => {
-  rimraf(nodePath.join(__dirname, 'src'), () => {
-    Promise.all([
-      fs.mkdir(nodePath.join(__dirname, 'src')),
-      fs.mkdir(nodePath.join(__dirname, 'src', 'js')),
-      fs.mkdir(nodePath.join(__dirname, 'src', 'images')),
-      fs.mkdir(nodePath.join(__dirname, 'src', 'fonts')),
-      fs.mkdir(nodePath.join(__dirname, 'src', 'styles')),
-      fs.writeFile(
-        nodePath.join(__dirname, 'src', 'index.html'),
-`<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-  </head>
-  <body>
-  
-  </body>
-</html>`
-      )
-    ])
-      .then(res => {
-        console.log('⚡️  Folder structure has been generated!');
-        console.log(
-          'To start development, run a command',
-          '\x1b[36mnpm run dev\x1b[0m'
-        );
-        cb();
-      })
-      .catch(err => console.log('Error: ', err));
-  });
-});
 
 const empty = () => {
   var through = require('through2');
