@@ -9,7 +9,7 @@
 
 ```bash
 npx degit a1exalexander/gulp-static <my-new-project>
-cd my-new-project
+cd <my-new-project>
 npm install
 ```
 
