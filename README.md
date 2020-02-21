@@ -37,3 +37,9 @@ npm run build
       ├── js                   # Entry JS files
       ├── styles               # CSS, SASS, SCSS style files (ignore: '_')
       index.html
+
+
+#### Rigger (import HTML components)
+```
+//= component.html
+```
