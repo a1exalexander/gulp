@@ -8,22 +8,23 @@
 ## Installation
 
 ```bash
-npx degit a1exalexander/gulp-static my-new-project
+npx degit a1exalexander/gulp-static <my-new-project>
 cd my-new-project
 npm install
-npm run init
 ```
 
 ## Usage
 
 ```bash
 # Run development server
-npm run dev
-# or
 npm start
+# or
+npm run dev
+# or run with HTML validator
+npm run dev:validator
+```
 
-###########################
-
+```bash
 # Build for production
 npm run build
 ```
@@ -34,5 +35,5 @@ npm run build
       ├── fonts
       ├── images
       ├── js                   # Entry JS files
-      ├── scss
+      ├── styles               # CSS, SASS, SCSS style files (ignore: '_')
       index.html
