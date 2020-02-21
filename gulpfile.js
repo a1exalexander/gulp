@@ -1,11 +1,12 @@
 'use strict';
 
 const { parallel, series, task, src, watch, dest } = require('gulp');
-const prefixer = require('gulp-autoprefixer');
+const postcss = require('gulp-postcss');
+const autoprefixer = require('autoprefixer');
+const cssnano = require('cssnano');
 const sass = require('gulp-sass');
 const sourcemaps = require('gulp-sourcemaps');
 const rigger = require('gulp-rigger');
-const cssmin = require('gulp-clean-css');
 const imagemin = require('gulp-imagemin');
 const pngquant = require('imagemin-pngquant');
 const rimraf = require('rimraf');
@@ -30,7 +31,20 @@ task('init', cb => {
       fs.mkdir(nodePath.join(__dirname, 'src', 'images')),
       fs.mkdir(nodePath.join(__dirname, 'src', 'fonts')),
       fs.mkdir(nodePath.join(__dirname, 'src', 'scss')),
-      fs.writeFile(nodePath.join(__dirname, 'src', 'index.html'), '')
+      fs.writeFile(
+        nodePath.join(__dirname, 'src', 'index.html'),
+`<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+  </head>
+  <body>
+  
+  </body>
+</html>`
+      )
     ])
       .then(res => {
         console.log('⚡️  Folder structure has been generated!');
@@ -52,7 +66,7 @@ const empty = () => {
 };
 
 const onEmpty = (type = 'dev', fn, params) => {
-  if (type === 'prod') {
+  if (type === 'prod' || type === 'validator') {
     return params ? fn(params) : fn();
   }
   return empty();
@@ -78,14 +92,14 @@ const path = {
   src: {
     HTML: 'src/*.html',
     JS: 'src/js/*.js',
-    STYLE: 'src/scss/*.scss',
+    STYLE: 'src/styles/*!(_).*',
     IMAGES: 'src/images/**/*.*',
     FONTS: 'src/fonts/**/*.*'
   },
   watch: {
     HTML: 'src/**/*.html',
     JS: 'src/js/**/*.js',
-    STYLE: 'src/scss/**/*.scss',
+    STYLE: 'src/styles/**/*.*',
     IMAGES: 'src/images/**/*.*',
     FONTS: 'src/fonts/**/*.*'
   },
@@ -96,7 +110,7 @@ const config = {
   server: {
     baseDir: './build'
   },
-  tunnel: true,
+  tunnel: false,
   host: 'localhost',
   port: 9000,
   logPrefix: 'Devserver'
@@ -114,14 +128,15 @@ const htmlTask = (type = 'dev') => () => {
   return src(path.src.HTML)
     .pipe(plumber())
     .pipe(rigger())
-    .pipe(htmlValidator())
-    .pipe(htmlValidator.reporter())
+    .pipe(onEmpty(type, htmlValidator))
+    .pipe(onEmpty(type, htmlValidator.reporter))
     .pipe(onEmpty(type, htmlmin, { collapseWhitespace: true }))
     .pipe(dest(path.build.HTML))
     .pipe(reload({ stream: true }));
 };
 
 task('html:dev', htmlTask('dev'));
+task('html:validator', htmlTask('validator'));
 task('html:prod', htmlTask('prod'));
 
 const jsTask = (type = 'dev') => () => {
@@ -140,8 +155,12 @@ const jsTask = (type = 'dev') => () => {
 task('js:dev', jsTask('dev'));
 task('js:prod', jsTask('prod'));
 
-const styleTask = (type = 'dev') => () =>
-  src(path.src.STYLE)
+const styleTask = (type = 'dev') => () => {
+  const plugins = [
+    autoprefixer(),
+    cssnano()
+  ];
+  return src(path.src.STYLE)
     .pipe(plumber())
     .pipe(sourcemaps.init())
     .pipe(
@@ -150,11 +169,11 @@ const styleTask = (type = 'dev') => () =>
         errLogToConsole: true
       })
     )
-    .pipe(prefixer())
-    .pipe(onEmpty(type, cssmin))
+    .pipe(onEmpty(type, postcss, plugins))
     .pipe(sourcemaps.write())
     .pipe(dest(path.build.STYLE))
     .pipe(reload({ stream: true }));
+}
 
 task('style:dev', styleTask('dev'));
 task('style:prod', styleTask('prod'));
@@ -201,6 +220,20 @@ task(
 );
 
 task(
+  'build:validator',
+  series(
+    'clean',
+    parallel(
+      'html:validator',
+      'js:dev',
+      'style:dev',
+      'images:dev',
+      'fonts:build'
+    )
+  )
+);
+
+task(
   'build',
   series(
     'clean',
@@ -209,3 +242,4 @@ task(
 );
 
 task('default', series('build:dev', 'watch', 'webserver'));
+task('dev:validator', series('build:validator', 'watch', 'webserver'));
