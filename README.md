@@ -18,10 +18,8 @@ npm install
 ```bash
 # Run development server
 npm start
-# or
-npm run dev
 # or run with HTML validator
-npm run dev:validator
+npm run dev
 ```
 
 ```bash
