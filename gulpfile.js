@@ -16,7 +16,7 @@ const babel = require('rollup-plugin-babel');
 const resolve = require('@rollup/plugin-node-resolve');
 const commonjs = require('@rollup/plugin-commonjs');
 const { terser } = require('rollup-plugin-terser');
-const gulpPlumber = require('gulp-plumber');
+const plumber = require('gulp-plumber');
 const htmlmin = require('gulp-htmlmin');
 const notify = require('gulp-notify');
 const htmlValidator = require('gulp-w3c-html-validator');
@@ -32,23 +32,20 @@ const prodPipe = (type, fn, params) => {
   if (type === 'prod') {
     return params ? fn(params) : fn();
   }
-  return emptyPipe()
-};
-
-const devPipe = (type, fn, params) => {
-  if (['dev', 'validator'].includes(type)) {
-    return params ? fn(params) : fn();
-  }
-  return emptyPipe()
+  return emptyPipe();
 };
 
 const reload = browserSync.reload;
 
-const plumber = () => {
-  return gulpPlumber({
-    errorHandler: notify.onError('<%= error.message %>')
+const onPlumber = () =>
+  plumber({
+    errorHandler: err => {
+      notify.onError({
+        title: err.plugin,
+        message: err.message
+      })(err);
+    }
   });
-};
 
 const path = {
   build: {
@@ -94,26 +91,42 @@ task('clean', cb => {
   rimraf(path.clean, cb);
 });
 
-const htmlTask = (type) => () => {
+const htmlTask = type => () => {
   return src(path.src.HTML)
-    .pipe(plumber())
+    .pipe(onPlumber())
     .pipe(rigger())
-    .pipe(devPipe(type, htmlValidator))
-    .pipe(devPipe(type, htmlValidator.reporter))
     .pipe(prodPipe(type, htmlmin, { collapseWhitespace: true }))
+    .pipe(plumber.stop())
     .pipe(dest(path.build.HTML))
     .pipe(reload({ stream: true }));
 };
 
-task('html:dev', htmlTask());
-task('html:validator', htmlTask('dev'));
+task('html:dev', htmlTask('dev'));
 task('html:prod', htmlTask('prod'));
 
-const jsTask = (type = 'dev') => () => {
+task('html:validator', () => {
+  return src(path.src.HTML)
+    .pipe(onPlumber())
+    .pipe(rigger())
+    .pipe(htmlValidator())
+    .pipe(plumber.stop())
+    .pipe(dest(path.build.HTML))
+    .pipe(reload({ stream: true }));
+});
+
+task('validate', () => {
+  return src(path.src.HTML)
+    .pipe(onPlumber())
+    .pipe(rigger())
+    .pipe(htmlValidator())
+    .pipe(plumber.stop());
+});
+
+const jsTask = type => () => {
   const plugins = [babel(), resolve(), commonjs()];
   if (type === 'prod') plugins.push(terser());
   return src(path.src.JS)
-    .pipe(plumber())
+    .pipe(onPlumber())
     .pipe(rigger())
     .pipe(sourcemaps.init())
     .pipe(rollup({ plugins }, 'umd'))
@@ -125,13 +138,10 @@ const jsTask = (type = 'dev') => () => {
 task('js:dev', jsTask('dev'));
 task('js:prod', jsTask('prod'));
 
-const styleTask = (type = 'dev') => () => {
-  const plugins = [
-    autoprefixer(),
-    cssnano()
-  ];
+const styleTask = type => () => {
+  const plugins = [autoprefixer(), cssnano()];
   return src(path.src.STYLE)
-    .pipe(plumber())
+    .pipe(onPlumber())
     .pipe(sourcemaps.init())
     .pipe(
       sass({
@@ -143,14 +153,14 @@ const styleTask = (type = 'dev') => () => {
     .pipe(sourcemaps.write())
     .pipe(dest(path.build.STYLE))
     .pipe(reload({ stream: true }));
-}
+};
 
 task('style:dev', styleTask('dev'));
 task('style:prod', styleTask('prod'));
 
-const imagesTask = (type = 'dev') => () => {
+const imagesTask = type => () => {
   return src(path.src.IMAGES)
-    .pipe(plumber())
+    .pipe(onPlumber())
     .pipe(
       prodPipe(type, imagemin, {
         progressive: true,
@@ -168,12 +178,21 @@ task('images:prod', imagesTask('prod'));
 
 task('fonts:build', () => {
   return src(path.src.FONTS)
-    .pipe(plumber())
+    .pipe(onPlumber())
     .pipe(dest(path.build.FONTS));
 });
 
 task('watch', cb => {
   watch([path.watch.HTML], series('html:dev'));
+  watch([path.watch.STYLE], series('style:dev'));
+  watch([path.watch.JS], series('js:dev'));
+  watch([path.watch.IMAGES], series('images:dev'));
+  watch([path.watch.FONTS], series('fonts:build'));
+  cb();
+});
+
+task('watch:validator', cb => {
+  watch([path.watch.HTML], series('html:validator'));
   watch([path.watch.STYLE], series('style:dev'));
   watch([path.watch.JS], series('js:dev'));
   watch([path.watch.IMAGES], series('images:dev'));
@@ -189,20 +208,7 @@ task(
   )
 );
 
-task(
-  'build:validator',
-  series(
-    'clean',
-    parallel(
-      'html:validator',
-      'js:dev',
-      'style:dev',
-      'images:dev',
-      'fonts:build'
-    )
-  )
-);
-
+// Build for Production
 task(
   'build',
   series(
@@ -211,5 +217,8 @@ task(
   )
 );
 
+// Develop
 task('default', series('build:dev', 'watch', 'webserver'));
-task('dev:validator', series('build:validator', 'watch', 'webserver'));
+
+// Develop with HTML Validator
+task('dev', series('build:dev', 'watch:validator', 'webserver'));
