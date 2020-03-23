@@ -44,5 +44,6 @@ npm run build
 
 #### Rigger (import HTML components)
 ```
-//= component.html
+//= _component.html
+//= templates/component.html
 ```

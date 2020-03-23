@@ -58,9 +58,9 @@ const path = {
     PUBLIC: 'build/',
   },
   src: {
-    HTML: 'src/*!(_).html',
+    HTML: ['src/**/!(_*).html', '!src/templates/**/*'],
     JS: 'src/js/*.js',
-    STYLE: 'src/styles/*!(_).*',
+    STYLE: 'src/css/!(_*).*',
     IMAGES: 'src/images/**/*.*',
     FONTS: 'src/fonts/**/*.*',
     PUBLIC: 'src/public/**/*.*',
@@ -68,7 +68,7 @@ const path = {
   watch: {
     HTML: 'src/**/*.html',
     JS: 'src/js/**/*.js',
-    STYLE: 'src/styles/**/*.*',
+    STYLE: 'src/css/**/*.*',
     IMAGES: 'src/images/**/*.*',
     FONTS: 'src/fonts/**/*.*',
     PUBLIC: 'src/public/**/*.*'
