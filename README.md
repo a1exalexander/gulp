@@ -8,17 +8,22 @@
 ## Installation
 
 ```bash
+# Create new folder and install the gulp project there
 npx degit a1exalexander/gulp-static <my-new-project>
 cd <my-new-project>
+npm install
+
+# or install the gulp project here
+npx degit a1exalexander/gulp-static .
 npm install
 ```
 
 ## Usage
 
 ```bash
-# Run development server
+# Run devserver
 npm start
-# or run with HTML validator
+# or run deveserver with HTML validator
 npm run dev
 ```
 
