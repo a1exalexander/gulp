@@ -2,19 +2,19 @@
   <a href="https://gulpjs.com">
     <img height="257" width="114" src="https://raw.githubusercontent.com/gulpjs/artwork/master/gulp-2x.png">
   </a>
-  <h1 align="center">Gulp static config</h1>
+  <h1 align="center">Gulp config</h1>
 </p>
 
 ## Installation
 
 ```bash
 # Create new folder and install the gulp project there
-npx degit a1exalexander/gulp-static <my-new-project>
+npx degit a1exalexander/gulp <my-new-project>
 cd <my-new-project>
 npm install
 
 # or install the gulp project here
-npx degit a1exalexander/gulp-static .
+npx degit a1exalexander/gulp .
 npm install
 ```
 
@@ -44,6 +44,6 @@ npm run build
 
 #### Rigger (import HTML components)
 ```
-//= _component.html
-//= templates/component.html
+//= templates/_foo.html
+//= _bar.html
 ```
