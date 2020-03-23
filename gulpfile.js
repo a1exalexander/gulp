@@ -54,21 +54,24 @@ const path = {
     JS: 'build/js/',
     STYLE: 'build/css/',
     IMAGES: 'build/images/',
-    FONTS: 'build/fonts/'
+    FONTS: 'build/fonts/',
+    PUBLIC: 'build/',
   },
   src: {
     HTML: 'src/*!(_).html',
     JS: 'src/js/*.js',
     STYLE: 'src/styles/*!(_).*',
     IMAGES: 'src/images/**/*.*',
-    FONTS: 'src/fonts/**/*.*'
+    FONTS: 'src/fonts/**/*.*',
+    PUBLIC: 'src/public/**/*.*',
   },
   watch: {
     HTML: 'src/**/*.html',
     JS: 'src/js/**/*.js',
     STYLE: 'src/styles/**/*.*',
     IMAGES: 'src/images/**/*.*',
-    FONTS: 'src/fonts/**/*.*'
+    FONTS: 'src/fonts/**/*.*',
+    PUBLIC: 'src/public/**/*.*'
   },
   clean: './build'
 };
@@ -182,12 +185,19 @@ task('fonts:build', () => {
     .pipe(dest(path.build.FONTS));
 });
 
+task('public:build', () => {
+  return src(path.src.PUBLIC)
+    .pipe(onPlumber())
+    .pipe(dest(path.build.PUBLIC));
+});
+
 task('watch', cb => {
   watch([path.watch.HTML], series('html:dev'));
   watch([path.watch.STYLE], series('style:dev'));
   watch([path.watch.JS], series('js:dev'));
   watch([path.watch.IMAGES], series('images:dev'));
   watch([path.watch.FONTS], series('fonts:build'));
+  watch([path.watch.PUBLIC], series('public:build'));
   cb();
 });
 
@@ -197,6 +207,7 @@ task('watch:validator', cb => {
   watch([path.watch.JS], series('js:dev'));
   watch([path.watch.IMAGES], series('images:dev'));
   watch([path.watch.FONTS], series('fonts:build'));
+  watch([path.watch.PUBLIC], series('public:build'));
   cb();
 });
 
@@ -204,7 +215,7 @@ task(
   'build:dev',
   series(
     'clean',
-    parallel('html:dev', 'js:dev', 'style:dev', 'images:dev', 'fonts:build')
+    parallel('html:dev', 'js:dev', 'style:dev', 'images:dev', 'fonts:build', 'public:build')
   )
 );
 
@@ -213,7 +224,7 @@ task(
   'build',
   series(
     'clean',
-    parallel('html:prod', 'js:prod', 'style:prod', 'images:prod', 'fonts:build')
+    parallel('html:prod', 'js:prod', 'style:prod', 'images:prod', 'fonts:build', 'public:build')
   )
 );
 
