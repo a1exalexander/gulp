@@ -128,7 +128,7 @@ task('validate', () => {
 });
 
 const jsTask = (type) => () => {
-  const plugins = [resolve({ browser: true }), commonjs(), builtins(), babel()];
+  const plugins = [json(), resolve({ browser: true }), commonjs(), builtins(), babel()];
   if (type === 'prod') plugins.push(terser());
   return src(path.src.JS)
     .pipe(onPlumber())
