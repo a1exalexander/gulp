@@ -84,7 +84,7 @@ const config = {
   },
   tunnel: false,
   host: 'localhost',
-  port: 9000,
+  port: 3000,
   logPrefix: 'Devserver',
 };
 
@@ -128,7 +128,7 @@ task('validate', () => {
 });
 
 const jsTask = (type) => () => {
-  const plugins = [json(), resolve({ browser: true }), commonjs(), builtins(), babel()];
+  const plugins = [babel(), json(), resolve({ browser: true }), commonjs(), builtins()];
   if (type === 'prod') plugins.push(terser());
   return src(path.src.JS)
     .pipe(onPlumber())
