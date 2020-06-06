@@ -54,6 +54,7 @@
     "through2": "^3.0.1"
   },
   "dependencies": {
-    "ejs": "^3.0.2"
+    "ejs": "^3.0.2",
+    "rollup-plugin-ejs": "^2.2.0"
   }
 }

@@ -6,9 +6,10 @@
     <title>Document</title>
   </head>
   <body>
-    <h1>Hello !</h1>
-    <%- include('templates/header'); -%>
-    <div id='output'></div>
+    <%- include('templates/Header'); -%>
+    <%- include('templates/Button', { name: 'hello' }); -%>
+    <ul id='people'></ul>
+    <%- include('templates/Footer'); -%>
     <script src="/js/app.js"></script>
   </body>
 </html>

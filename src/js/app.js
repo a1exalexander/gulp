@@ -1,6 +1,13 @@
-const ejs = require('ejs');
+import UserCards from '../templates/UserCards.ejs';
 
-let people = ['geddy', 'neil', 'alex'];
-let html = ejs.render('<%= people.join(", "); %>', { people: people });
+const render = (id, data) => {
+  try {
+    document.getElementById(id).innerHTML = data
+  } catch(err) {
+    console.log(`"${id}" Not Rendered`, err);
+  }
+};
 
-document.getElementById('output').innerHTML = html;
+const people = ['geddy', 'neil', 'alex'];
+
+render('people', UserCards(people))

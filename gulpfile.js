@@ -23,6 +23,7 @@ const ejs = require('gulp-ejs');
 const rename = require('gulp-rename');
 const builtins = require('rollup-plugin-node-builtins');
 const json = require('@rollup/plugin-json');
+const ejsPlugin = require('rollup-plugin-ejs');
 
 const emptyPipe = () => {
   var through = require('through2');
@@ -131,11 +132,12 @@ task('validate', () => {
 
 const jsTask = (type) => () => {
   const plugins = [
+    babel(),
+    ejsPlugin(),
     json(),
     resolve({ browser: true }),
     commonjs(),
     builtins(),
-    babel(),
   ];
   if (type === 'prod') plugins.push(terser());
   return src(path.src.JS)
